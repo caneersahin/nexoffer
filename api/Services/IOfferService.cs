@@ -15,4 +15,5 @@ public interface IOfferService
     Task<bool> RejectOfferAsync(int id, string userId);
     Task<bool> CancelOfferAsync(int id, string userId);
     Task<byte[]?> GetOfferPdfAsync(int id, string userId);
+    Task<byte[]?> GetOfferPdfPublicAsync(int id);
 }
