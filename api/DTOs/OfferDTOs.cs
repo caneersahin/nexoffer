@@ -17,6 +17,7 @@ public class OfferDto
     public decimal TotalAmount { get; set; }
     public OfferStatus Status { get; set; }
     public DateTime CreatedAt { get; set; }
+    public string PublicToken { get; set; } = string.Empty;
     public string CompanyName { get; set; } = string.Empty;
     public List<OfferItemDto> Items { get; set; } = new();
 }
