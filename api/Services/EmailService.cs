@@ -23,10 +23,10 @@ public class EmailService : IEmailService
         var body = GenerateOfferEmailBody(offer);
         var pdf = GenerateOfferPdf(offer);
 
-        return await SendEmailAsync(offer.CustomerEmail, subject, body, pdf, $"{offer.OfferNumber}.pdf");
+        return await SendEmailAsync(offer.CustomerEmail, subject, body, pdf, $"{offer.OfferNumber}.pdf", offer);
     }
 
-    public async Task<bool> SendEmailAsync(string to, string subject, string body, byte[]? attachmentData = null, string? attachmentName = null)
+    public async Task<bool> SendEmailAsync(string to, string subject, string body, byte[]? attachmentData = null, string? attachmentName = null, Offer? offer = null)
     {
         try
         {
@@ -41,15 +41,24 @@ public class EmailService : IEmailService
                 EnableSsl = true
             };
 
+            var displayName = offer != null
+                ? $"{offer.User.FirstName} {offer.User.LastName} | {offer.Company.Name}"
+                : "Teklif Sistemi";
+
             var message = new MailMessage
             {
-                From = new MailAddress(username!, "Teklif Sistemi"),
+                From = new MailAddress(username!, displayName),
                 Subject = subject,
                 Body = body,
                 IsBodyHtml = true
             };
 
             message.To.Add(to);
+
+            if (offer != null && !string.IsNullOrWhiteSpace(offer.User.Email))
+            {
+                message.ReplyToList.Add(new MailAddress(offer.User.Email));
+            }
 
             if (attachmentData != null)
             {

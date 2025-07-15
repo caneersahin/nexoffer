@@ -55,6 +55,7 @@ interface OfferState {
   updateOffer: (id: number, data: CreateOfferData) => Promise<Offer>;
   deleteOffer: (id: number) => Promise<void>;
   sendOffer: (id: number) => Promise<void>;
+  downloadOfferPdf: (id: number) => Promise<void>;
   setCurrentOffer: (offer: Offer | null) => void;
 }
 
@@ -159,6 +160,16 @@ export const useOfferStore = create<OfferState>((set, get) => ({
       }));
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Teklif gönderilemedi');
+    }
+  },
+
+  downloadOfferPdf: async (id: number) => {
+    try {
+      const response = await api.get(`/api/offers/${id}/pdf`, { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+      window.open(url, '_blank');
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'PDF indirilemedi');
     }
   },
 
