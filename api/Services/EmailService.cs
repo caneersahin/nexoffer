@@ -104,7 +104,11 @@ public class EmailService : IEmailService
 
                 page.Header().Background(Colors.Grey.Lighten3).Padding(10).Row(row =>
                 {
-                    row.ConstantColumn(120).Height(80).Image("wwwroot/"+offer.Company.Logo, ImageScaling.FitArea); // Logo
+                    var logoPath = "wwwroot/" + offer?.Company?.Logo;
+                    if (!string.IsNullOrWhiteSpace(offer?.Company?.Logo) && System.IO.File.Exists(logoPath))
+                    {
+                        row.ConstantColumn(120).Height(80).Image(logoPath, ImageScaling.FitArea);
+                    }
 
                     row.RelativeColumn().AlignRight().Column(col =>
                     {
