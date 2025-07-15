@@ -3,26 +3,18 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useOfferStore } from '@/store/offerStore';
-import { 
+import {
   Plus,
   Search,
-  Filter,
-  Eye,
-  Edit,
-  Trash2,
-  Send,
-  Download,
   Calendar,
   User,
   DollarSign,
-  MessageCircle,
-  Check,
-  X
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import OfferActionsDropdown from '@/components/OfferActionsDropdown';
 import toast from 'react-hot-toast';
 
 export default function OffersPage() {
@@ -34,6 +26,10 @@ export default function OffersPage() {
   const [selectedOfferId, setSelectedOfferId] = useState<number | null>(null);
   const [sendDialogOpen, setSendDialogOpen] = useState(false);
   const [offerToSend, setOfferToSend] = useState<number | null>(null);
+  const [acceptDialogOpen, setAcceptDialogOpen] = useState(false);
+  const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
+  const [offerToAccept, setOfferToAccept] = useState<number | null>(null);
+  const [offerToReject, setOfferToReject] = useState<number | null>(null);
 
   useEffect(() => {
     fetchOffers();
@@ -66,6 +62,30 @@ export default function OffersPage() {
       toast.success('Teklif gönderildi');
       setSendDialogOpen(false);
       setOfferToSend(null);
+    } catch (error: any) {
+      toast.error(error.message);
+    }
+  };
+
+  const handleAcceptOffer = async () => {
+    if (!offerToAccept) return;
+    try {
+      await acceptOffer(offerToAccept);
+      toast.success('Teklif onaylandı');
+      setAcceptDialogOpen(false);
+      setOfferToAccept(null);
+    } catch (error: any) {
+      toast.error(error.message);
+    }
+  };
+
+  const handleRejectOffer = async () => {
+    if (!offerToReject) return;
+    try {
+      await rejectOffer(offerToReject);
+      toast.success('Teklif reddedildi');
+      setRejectDialogOpen(false);
+      setOfferToReject(null);
     } catch (error: any) {
       toast.error(error.message);
     }
@@ -241,82 +261,30 @@ export default function OffersPage() {
                         </div>
                       </td>
                       <td className="table-cell">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <button
-                            onClick={() => router.push(`/dashboard/offers/${offer.id}`)}
-                            className="text-gray-400 hover:text-gray-600"
-                            title="Görüntüle"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => router.push(`/dashboard/offers/${offer.id}/edit`)}
-                            className="text-blue-400 hover:text-blue-600"
-                            title="Düzenle"
-                          >
-                            <Edit className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => {
-                              setOfferToSend(offer.id);
-                              setSendDialogOpen(true);
-                            }}
-                            className="text-green-400 hover:text-green-600"
-                            title="Gönder"
-                          >
-                            <Send className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => downloadOfferPdf(offer.id)}
-                            className="text-indigo-400 hover:text-indigo-600"
-                            title="PDF"
-                          >
-                            <Download className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => handleShareWhatsapp(offer)}
-                            className="text-green-600 hover:text-green-800"
-                            title="WhatsApp"
-                          >
-                            <MessageCircle className="h-4 w-4" />
-                          </button>
-                          {offer.status !== 'Accepted' && (
-                            <button
-                              onClick={() => {
-                                if (confirm('Teklifi onaylamak istediğinize emin misiniz?')) {
-                                  acceptOffer(offer.id);
-                                }
-                              }}
-                              className="text-green-400 hover:text-green-600"
-                              title="Onayla"
-                            >
-                              <Check className="h-4 w-4" />
-                            </button>
-                          )}
-                          {offer.status !== 'Rejected' && (
-                            <button
-                              onClick={() => {
-                                if (confirm('Teklifi reddetmek istediğinize emin misiniz?')) {
-                                  rejectOffer(offer.id);
-                                }
-                              }}
-                              className="text-red-400 hover:text-red-600"
-                              title="Reddet"
-                            >
-                              <X className="h-4 w-4" />
-                            </button>
-                          )}
-                          <button
-                            onClick={() => {
-                              setSelectedOfferId(offer.id);
-                              setDeleteDialogOpen(true);
-                            }}
-                            className="text-red-400 hover:text-red-600"
-                            title="Sil"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
+                        <OfferActionsDropdown
+                          onView={() => router.push(`/dashboard/offers/${offer.id}`)}
+                          onEdit={() => router.push(`/dashboard/offers/${offer.id}/edit`)}
+                          onSend={() => {
+                            setOfferToSend(offer.id);
+                            setSendDialogOpen(true);
+                          }}
+                          onPdf={() => downloadOfferPdf(offer.id)}
+                          onWhatsapp={() => handleShareWhatsapp(offer)}
+                          onAccept={() => {
+                            setOfferToAccept(offer.id);
+                            setAcceptDialogOpen(true);
+                          }}
+                          onReject={() => {
+                            setOfferToReject(offer.id);
+                            setRejectDialogOpen(true);
+                          }}
+                          onDelete={() => {
+                            setSelectedOfferId(offer.id);
+                            setDeleteDialogOpen(true);
+                          }}
+                          showAccept={offer.status !== 'Accepted'}
+                          showReject={offer.status !== 'Rejected'}
+                        />
                       </td>
                     </tr>
                   ))}
@@ -347,6 +315,24 @@ export default function OffersPage() {
         message="Teklifi müşteriye göndermek istediğinizden emin misiniz?"
         confirmText="Gönder"
         type="info"
+      />
+      <ConfirmDialog
+        isOpen={acceptDialogOpen}
+        onClose={() => setAcceptDialogOpen(false)}
+        onConfirm={handleAcceptOffer}
+        title="Teklifi Onayla"
+        message="Bu teklifi onaylamak istediğinizden emin misiniz?"
+        confirmText="Onayla"
+        type="success"
+      />
+      <ConfirmDialog
+        isOpen={rejectDialogOpen}
+        onClose={() => setRejectDialogOpen(false)}
+        onConfirm={handleRejectOffer}
+        title="Teklifi Reddet"
+        message="Bu teklifi reddetmek istediğinizden emin misiniz?"
+        confirmText="Reddet"
+        type="danger"
       />
     </div>
   );
