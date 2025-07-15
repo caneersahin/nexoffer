@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useOfferStore } from '@/store/offerStore';
-import { ArrowLeft, Edit, Send, Download } from 'lucide-react';
+import { ArrowLeft, Edit, Send, Download, Check, X, Ban } from 'lucide-react';
 import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
 import ConfirmDialog from '@/components/ConfirmDialog';
@@ -14,8 +14,11 @@ export default function OfferDetailPage() {
   const router = useRouter();
   const params = useParams();
   const id = Number(params.id);
-  const { currentOffer: offer, fetchOffer, sendOffer, downloadOfferPdf, loading } = useOfferStore();
+  const { currentOffer: offer, fetchOffer, sendOffer, downloadOfferPdf, acceptOffer, rejectOffer, cancelOffer, loading } = useOfferStore();
   const [sendDialogOpen, setSendDialogOpen] = useState(false);
+  const [acceptDialogOpen, setAcceptDialogOpen] = useState(false);
+  const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
 
   useEffect(() => {
     if (!isNaN(id)) {
@@ -28,6 +31,36 @@ export default function OfferDetailPage() {
       await sendOffer(id);
       toast.success('Teklif gönderildi');
       setSendDialogOpen(false);
+    } catch (error: any) {
+      toast.error(error.message);
+    }
+  };
+
+  const handleAcceptOffer = async () => {
+    try {
+      await acceptOffer(id);
+      toast.success('Teklif onaylandı');
+      setAcceptDialogOpen(false);
+    } catch (error: any) {
+      toast.error(error.message);
+    }
+  };
+
+  const handleRejectOffer = async () => {
+    try {
+      await rejectOffer(id);
+      toast.success('Teklif reddedildi');
+      setRejectDialogOpen(false);
+    } catch (error: any) {
+      toast.error(error.message);
+    }
+  };
+
+  const handleCancelOffer = async () => {
+    try {
+      await cancelOffer(id);
+      toast.success('Teklif iptal edildi');
+      setCancelDialogOpen(false);
     } catch (error: any) {
       toast.error(error.message);
     }
@@ -184,6 +217,33 @@ export default function OfferDetailPage() {
           <Send className="h-4 w-4 mr-2" />
           Teklifi Gönder
         </button>
+        {offer.status !== 'Accepted' && (
+          <button
+            onClick={() => setAcceptDialogOpen(true)}
+            className="btn btn-success btn-md"
+          >
+            <Check className="h-4 w-4 mr-2" />
+            Onayla
+          </button>
+        )}
+        {offer.status !== 'Rejected' && (
+          <button
+            onClick={() => setRejectDialogOpen(true)}
+            className="btn btn-danger btn-md"
+          >
+            <X className="h-4 w-4 mr-2" />
+            Reddet
+          </button>
+        )}
+        {offer.status !== 'Cancelled' && (
+          <button
+            onClick={() => setCancelDialogOpen(true)}
+            className="btn btn-outline btn-md"
+          >
+            <Ban className="h-4 w-4 mr-2" />
+            İptal Et
+          </button>
+        )}
       </div>
 
       <ConfirmDialog
@@ -194,6 +254,33 @@ export default function OfferDetailPage() {
         message="Teklifi müşteriye göndermek istediğinizden emin misiniz?"
         confirmText="Gönder"
         type="info"
+      />
+      <ConfirmDialog
+        isOpen={acceptDialogOpen}
+        onClose={() => setAcceptDialogOpen(false)}
+        onConfirm={handleAcceptOffer}
+        title="Teklifi Onayla"
+        message="Bu teklifi onaylamak istediğinizden emin misiniz?"
+        confirmText="Onayla"
+        type="success"
+      />
+      <ConfirmDialog
+        isOpen={rejectDialogOpen}
+        onClose={() => setRejectDialogOpen(false)}
+        onConfirm={handleRejectOffer}
+        title="Teklifi Reddet"
+        message="Bu teklifi reddetmek istediğinizden emin misiniz?"
+        confirmText="Reddet"
+        type="danger"
+      />
+      <ConfirmDialog
+        isOpen={cancelDialogOpen}
+        onClose={() => setCancelDialogOpen(false)}
+        onConfirm={handleCancelOffer}
+        title="Teklifi İptal Et"
+        message="Bu teklifi iptal etmek istediğinizden emin misiniz?"
+        confirmText="İptal Et"
+        type="warning"
       />
     </div>
   );

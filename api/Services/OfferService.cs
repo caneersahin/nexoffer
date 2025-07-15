@@ -108,6 +108,7 @@ public class OfferService : IOfferService
 
     public async Task<List<OfferDto>> GetOffersByUserAsync(string userId, int page = 1, int pageSize = 10)
     {
+        await UpdateExpiredOffersAsync();
         var offers = await _context.Offers
             .Include(o => o.Items)
             .Include(o => o.Company)
@@ -122,6 +123,7 @@ public class OfferService : IOfferService
 
     public async Task<List<OfferDto>> GetOffersByCompanyAsync(int companyId, int page = 1, int pageSize = 10)
     {
+        await UpdateExpiredOffersAsync();
         var offers = await _context.Offers
             .Include(o => o.Items)
             .Include(o => o.Company)
@@ -201,6 +203,33 @@ public class OfferService : IOfferService
         return emailSent;
     }
 
+    public async Task<bool> AcceptOfferAsync(int id, string userId)
+    {
+        var offer = await _context.Offers.FirstOrDefaultAsync(o => o.Id == id && o.UserId == userId);
+        if (offer == null) return false;
+        offer.Status = OfferStatus.Accepted;
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> RejectOfferAsync(int id, string userId)
+    {
+        var offer = await _context.Offers.FirstOrDefaultAsync(o => o.Id == id && o.UserId == userId);
+        if (offer == null) return false;
+        offer.Status = OfferStatus.Rejected;
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> CancelOfferAsync(int id, string userId)
+    {
+        var offer = await _context.Offers.FirstOrDefaultAsync(o => o.Id == id && o.UserId == userId);
+        if (offer == null) return false;
+        offer.Status = OfferStatus.Cancelled;
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
     public async Task<byte[]?> GetOfferPdfAsync(int id, string userId)
     {
         var offer = await _context.Offers
@@ -209,6 +238,12 @@ public class OfferService : IOfferService
             .FirstOrDefaultAsync(o => o.Id == id && o.UserId == userId);
 
         if (offer == null) return null;
+
+        if (offer.Status == OfferStatus.Sent)
+        {
+            offer.Status = OfferStatus.Viewed;
+            await _context.SaveChangesAsync();
+        }
 
         return GenerateOfferPdf(offer);
     }
@@ -383,5 +418,22 @@ public class OfferService : IOfferService
         });
 
         return document.GeneratePdf();
+    }
+
+    private async Task UpdateExpiredOffersAsync()
+    {
+        var expiredOffers = await _context.Offers
+            .Where(o => o.DueDate.HasValue && o.DueDate < DateTime.UtcNow &&
+                        (o.Status == OfferStatus.Draft || o.Status == OfferStatus.Sent || o.Status == OfferStatus.Viewed))
+            .ToListAsync();
+
+        if (expiredOffers.Count == 0) return;
+
+        foreach (var offer in expiredOffers)
+        {
+            offer.Status = OfferStatus.Expired;
+        }
+
+        await _context.SaveChangesAsync();
     }
 }
