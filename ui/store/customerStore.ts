@@ -42,7 +42,7 @@ export const useCustomerStore = create<CustomerState>((set, get) => ({
     set({ loading: true, error: null });
     try {
       const res = await api.get('/api/customers');
-      set({ customers: res.data, loading: false });
+      set({ customers: res.data.data, loading: false });
     } catch (error: any) {
       set({
         error: error.response?.data?.message || 'Müşteriler yüklenemedi',
@@ -54,7 +54,7 @@ export const useCustomerStore = create<CustomerState>((set, get) => ({
   createCustomer: async (data: CreateCustomerData) => {
     try {
       const res = await api.post('/api/customers', data);
-      const newCustomer: Customer = res.data;
+      const newCustomer: Customer = res.data.data;
       set((state) => ({ customers: [...state.customers, newCustomer] }));
       return newCustomer;
     } catch (error: any) {
@@ -65,7 +65,7 @@ export const useCustomerStore = create<CustomerState>((set, get) => ({
   updateCustomer: async (id: number, data: UpdateCustomerData) => {
     try {
       const res = await api.put(`/api/customers/${id}`, data);
-      const updated: Customer = res.data;
+      const updated: Customer = res.data.data;
       set((state) => ({
         customers: state.customers.map((c) => (c.id === id ? updated : c)),
       }));

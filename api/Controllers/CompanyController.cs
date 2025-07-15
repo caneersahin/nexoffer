@@ -23,16 +23,34 @@ public class CompanyController : ControllerBase
         var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
         if (userId == null)
         {
-            return BadRequest("Invalid user");
+            return BadRequest(new BaseResponse<string>
+            {
+                Success = false,
+                StatusCode = 400,
+                Message = "Geçersiz kullanıcı",
+                Data = null
+            });
         }
 
         var company = await _companyService.GetCompanyByUserIdAsync(userId);
         if (company == null)
         {
-            return NotFound("Company not found");
+            return NotFound(new BaseResponse<string>
+            {
+                Success = false,
+                StatusCode = 404,
+                Message = "Şirket bulunamadı",
+                Data = null
+            });
         }
 
-        return Ok(company);
+        return Ok(new BaseResponse<CompanyDto>
+        {
+            Success = true,
+            StatusCode = 200,
+            Message = "Şirket bilgileri getirildi",
+            Data = company
+        });
     }
 
     [HttpPut]
@@ -41,16 +59,34 @@ public class CompanyController : ControllerBase
         var companyIdClaim = User.FindFirst("CompanyId")?.Value;
         if (companyIdClaim == null || !int.TryParse(companyIdClaim, out var companyId))
         {
-            return BadRequest("Invalid company");
+            return BadRequest(new BaseResponse<string>
+            {
+                Success = false,
+                StatusCode = 400,
+                Message = "Geçersiz şirket",
+                Data = null
+            });
         }
 
         var company = await _companyService.UpdateCompanyAsync(companyId, request);
         if (company == null)
         {
-            return NotFound("Company not found");
+            return NotFound(new BaseResponse<string>
+            {
+                Success = false,
+                StatusCode = 404,
+                Message = "Şirket bulunamadı",
+                Data = null
+            });
         }
 
-        return Ok(company);
+        return Ok(new BaseResponse<CompanyDto>
+        {
+            Success = true,
+            StatusCode = 200,
+            Message = "Şirket güncellendi",
+            Data = company
+        });
     }
 
     [HttpPost("logo")]
@@ -59,21 +95,45 @@ public class CompanyController : ControllerBase
         var companyIdClaim = User.FindFirst("CompanyId")?.Value;
         if (companyIdClaim == null || !int.TryParse(companyIdClaim, out var companyId))
         {
-            return BadRequest("Invalid company");
+            return BadRequest(new BaseResponse<string>
+            {
+                Success = false,
+                StatusCode = 400,
+                Message = "Geçersiz şirket",
+                Data = null
+            });
         }
 
         if (logo == null || logo.Length == 0)
         {
-            return BadRequest("No file uploaded");
+            return BadRequest(new BaseResponse<string>
+            {
+                Success = false,
+                StatusCode = 400,
+                Message = "Dosya yüklenmedi",
+                Data = null
+            });
         }
 
         var success = await _companyService.UploadLogoAsync(companyId, logo);
         if (!success)
         {
-            return BadRequest("Failed to upload logo");
+            return BadRequest(new BaseResponse<string>
+            {
+                Success = false,
+                StatusCode = 400,
+                Message = "Logo yüklenemedi",
+                Data = null
+            });
         }
 
-        return Ok(new { Success = true, Message = "Logo uploaded successfully" });
+        return Ok(new BaseResponse<string>
+        {
+            Success = true,
+            StatusCode = 200,
+            Message = "Logo başarıyla yüklendi",
+            Data = null
+        });
     }
 
     [HttpPost("upgrade")]
@@ -82,16 +142,34 @@ public class CompanyController : ControllerBase
         var companyIdClaim = User.FindFirst("CompanyId")?.Value;
         if (companyIdClaim == null || !int.TryParse(companyIdClaim, out var companyId))
         {
-            return BadRequest("Invalid company");
+            return BadRequest(new BaseResponse<string>
+            {
+                Success = false,
+                StatusCode = 400,
+                Message = "Geçersiz şirket",
+                Data = null
+            });
         }
 
         var company = await _companyService.UpgradePlanAsync(companyId, request);
         if (company == null)
         {
-            return NotFound("Company not found");
+            return NotFound(new BaseResponse<string>
+            {
+                Success = false,
+                StatusCode = 404,
+                Message = "Şirket bulunamadı",
+                Data = null
+            });
         }
 
-        return Ok(company);
+        return Ok(new BaseResponse<CompanyDto>
+        {
+            Success = true,
+            StatusCode = 200,
+            Message = "Plan yükseltildi",
+            Data = company
+        });
     }
 
     [HttpPost("payment")]
@@ -100,16 +178,34 @@ public class CompanyController : ControllerBase
         var companyIdClaim = User.FindFirst("CompanyId")?.Value;
         if (companyIdClaim == null || !int.TryParse(companyIdClaim, out var companyId))
         {
-            return BadRequest("Invalid company");
+            return BadRequest(new BaseResponse<string>
+            {
+                Success = false,
+                StatusCode = 400,
+                Message = "Geçersiz şirket",
+                Data = null
+            });
         }
 
         var payment = await _companyService.RecordPaymentAsync(companyId, request);
         if (payment == null)
         {
-            return NotFound("Company not found");
+            return NotFound(new BaseResponse<string>
+            {
+                Success = false,
+                StatusCode = 404,
+                Message = "Şirket bulunamadı",
+                Data = null
+            });
         }
 
-        return Ok(payment);
+        return Ok(new BaseResponse<PaymentDto>
+        {
+            Success = true,
+            StatusCode = 200,
+            Message = "Ödeme kaydedildi",
+            Data = payment
+        });
     }
 
     [HttpGet("payments")]
@@ -118,10 +214,22 @@ public class CompanyController : ControllerBase
         var companyIdClaim = User.FindFirst("CompanyId")?.Value;
         if (companyIdClaim == null || !int.TryParse(companyIdClaim, out var companyId))
         {
-            return BadRequest("Invalid company");
+            return BadRequest(new BaseResponse<string>
+            {
+                Success = false,
+                StatusCode = 400,
+                Message = "Geçersiz şirket",
+                Data = null
+            });
         }
 
         var payments = await _companyService.GetPaymentHistoryAsync(companyId);
-        return Ok(payments);
+        return Ok(new BaseResponse<List<PaymentDto>>
+        {
+            Success = true,
+            StatusCode = 200,
+            Message = "Ödeme geçmişi getirildi",
+            Data = payments
+        });
     }
 }

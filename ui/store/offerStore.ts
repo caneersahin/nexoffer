@@ -69,7 +69,7 @@ export const useOfferStore = create<OfferState>((set, get) => ({
     set({ loading: true, error: null });
     try {
       const response = await api.get('/api/offers');
-      set({ offers: response.data, loading: false });
+      set({ offers: response.data.data, loading: false });
     } catch (error: any) {
       set({ 
         error: error.response?.data?.message || 'Teklifler yüklenemedi', 
@@ -82,7 +82,7 @@ export const useOfferStore = create<OfferState>((set, get) => ({
     set({ loading: true, error: null });
     try {
       const response = await api.get(`/api/offers/${id}`);
-      set({ currentOffer: response.data, loading: false });
+      set({ currentOffer: response.data.data, loading: false });
     } catch (error: any) {
       set({ 
         error: error.response?.data?.message || 'Teklif yüklenemedi', 
@@ -94,7 +94,7 @@ export const useOfferStore = create<OfferState>((set, get) => ({
   createOffer: async (data: CreateOfferData) => {
     try {
       const response = await api.post('/api/offers', data);
-      const newOffer = response.data;
+      const newOffer = response.data.data;
       
       set((state) => ({
         offers: [newOffer, ...state.offers],
@@ -110,7 +110,7 @@ export const useOfferStore = create<OfferState>((set, get) => ({
   updateOffer: async (id: number, data: CreateOfferData) => {
     try {
       const response = await api.put(`/api/offers/${id}`, data);
-      const updatedOffer = response.data;
+      const updatedOffer = response.data.data;
       
       set((state) => ({
         offers: state.offers.map((offer) => 

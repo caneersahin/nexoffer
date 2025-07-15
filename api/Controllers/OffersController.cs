@@ -25,11 +25,23 @@ public class OffersController : ControllerBase
 
         if (!int.TryParse(companyIdStr, out int companyId))
         {
-            return BadRequest("Invalid company ID");
+            return BadRequest(new BaseResponse<string>
+            {
+                Success = false,
+                StatusCode = 400,
+                Message = "Geçersiz şirket ID",
+                Data = null
+            });
         }
 
         var offers = await _offerService.GetOffersByCompanyAsync(companyId, page, pageSize);
-        return Ok(offers);
+        return Ok(new BaseResponse<List<OfferDto>>
+        {
+            Success = true,
+            StatusCode = 200,
+            Message = "Teklifler getirildi",
+            Data = offers
+        });
     }
 
     [HttpGet("{id}")]
@@ -40,16 +52,34 @@ public class OffersController : ControllerBase
 
         if (!int.TryParse(companyIdStr, out int companyId))
         {
-            return BadRequest("Invalid company ID");
+            return BadRequest(new BaseResponse<string>
+            {
+                Success = false,
+                StatusCode = 400,
+                Message = "Geçersiz şirket ID",
+                Data = null
+            });
         }
 
         var offer = await _offerService.GetOfferByIdAsync(id, companyId);
         if (offer == null)
         {
-            return NotFound("Offer not found");
+            return NotFound(new BaseResponse<string>
+            {
+                Success = false,
+                StatusCode = 404,
+                Message = "Teklif bulunamadı",
+                Data = null
+            });
         }
 
-        return Ok(offer);
+        return Ok(new BaseResponse<OfferDto>
+        {
+            Success = true,
+            StatusCode = 200,
+            Message = "Teklif getirildi",
+            Data = offer
+        });
     }
 
     [HttpPost]
@@ -64,10 +94,22 @@ public class OffersController : ControllerBase
         var result = await _offerService.CreateOfferAsync(request, userId);
         if (!result.Success || result.Offer == null)
         {
-            return BadRequest(result.Message);
+            return BadRequest(new BaseResponse<string>
+            {
+                Success = false,
+                StatusCode = 400,
+                Message = result.Message,
+                Data = null
+            });
         }
 
-        return CreatedAtAction(nameof(GetOffer), new { id = result.Offer.Id }, result.Offer);
+        return CreatedAtAction(nameof(GetOffer), new { id = result.Offer.Id }, new BaseResponse<OfferDto>
+        {
+            Success = true,
+            StatusCode = 201,
+            Message = "Teklif başarıyla oluşturuldu",
+            Data = result.Offer
+        });
     }
 
     [HttpPut("{id}")]
@@ -76,16 +118,34 @@ public class OffersController : ControllerBase
         var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
         if (userId == null)
         {
-            return BadRequest("Invalid user");
+            return BadRequest(new BaseResponse<string>
+            {
+                Success = false,
+                StatusCode = 400,
+                Message = "Geçersiz kullanıcı",
+                Data = null
+            });
         }
 
         var offer = await _offerService.UpdateOfferAsync(id, request);
         if (offer == null)
         {
-            return NotFound("Offer not found");
+            return NotFound(new BaseResponse<string>
+            {
+                Success = false,
+                StatusCode = 404,
+                Message = "Teklif bulunamadı",
+                Data = null
+            });
         }
 
-        return Ok(offer);
+        return Ok(new BaseResponse<OfferDto>
+        {
+            Success = true,
+            StatusCode = 200,
+            Message = "Teklif güncellendi",
+            Data = offer
+        });
     }
 
     [HttpDelete("{id}")]
@@ -94,16 +154,34 @@ public class OffersController : ControllerBase
         var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
         if (userId == null)
         {
-            return BadRequest("Invalid user");
+            return BadRequest(new BaseResponse<string>
+            {
+                Success = false,
+                StatusCode = 400,
+                Message = "Geçersiz kullanıcı",
+                Data = null
+            });
         }
 
         var success = await _offerService.DeleteOfferAsync(id, userId);
         if (!success)
         {
-            return NotFound("Offer not found");
+            return NotFound(new BaseResponse<string>
+            {
+                Success = false,
+                StatusCode = 404,
+                Message = "Teklif bulunamadı",
+                Data = null
+            });
         }
 
-        return Ok(new { Success = true, Message = "Offer deleted successfully" });
+        return Ok(new BaseResponse<string>
+        {
+            Success = true,
+            StatusCode = 200,
+            Message = "Teklif başarıyla silindi",
+            Data = null
+        });
     }
 
     [HttpPost("{id}/send")]
@@ -112,15 +190,33 @@ public class OffersController : ControllerBase
         var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
         if (userId == null)
         {
-            return BadRequest("Invalid user");
+            return BadRequest(new BaseResponse<string>
+            {
+                Success = false,
+                StatusCode = 400,
+                Message = "Geçersiz kullanıcı",
+                Data = null
+            });
         }
 
         var success = await _offerService.SendOfferAsync(id, userId);
         if (!success)
         {
-            return BadRequest("Failed to send offer");
+            return BadRequest(new BaseResponse<string>
+            {
+                Success = false,
+                StatusCode = 400,
+                Message = "Teklif gönderilemedi",
+                Data = null
+            });
         }
 
-        return Ok(new { Success = true, Message = "Offer sent successfully" });
+        return Ok(new BaseResponse<string>
+        {
+            Success = true,
+            StatusCode = 200,
+            Message = "Teklif başarıyla gönderildi",
+            Data = null
+        });
     }
 }

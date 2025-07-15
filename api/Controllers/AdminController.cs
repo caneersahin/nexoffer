@@ -21,7 +21,13 @@ public class AdminController : ControllerBase
     public async Task<IActionResult> GetDashboard()
     {
         var dashboard = await _adminService.GetDashboardAsync();
-        return Ok(dashboard);
+        return Ok(new BaseResponse<AdminDashboardDto>
+        {
+            Success = true,
+            StatusCode = 200,
+            Message = "Yönetim paneli getirildi",
+            Data = dashboard
+        });
     }
 
     [HttpPost("companies/{id}/upgrade")]
@@ -30,8 +36,20 @@ public class AdminController : ControllerBase
         var company = await _adminService.UpgradeCompanyAsync(id, request);
         if (company == null)
         {
-            return NotFound("Company not found");
+            return NotFound(new BaseResponse<string>
+            {
+                Success = false,
+                StatusCode = 404,
+                Message = "Şirket bulunamadı",
+                Data = null
+            });
         }
-        return Ok(company);
+        return Ok(new BaseResponse<CompanyDto>
+        {
+            Success = true,
+            StatusCode = 200,
+            Message = "Şirket yükseltildi",
+            Data = company
+        });
     }
 }

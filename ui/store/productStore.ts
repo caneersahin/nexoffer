@@ -42,7 +42,7 @@ export const useProductStore = create<ProductState>((set, get) => ({
     set({ loading: true, error: null });
     try {
       const res = await api.get('/api/products');
-      set({ products: res.data, loading: false });
+      set({ products: res.data.data, loading: false });
     } catch (error: any) {
       set({
         error: error.response?.data?.message || 'Ürünler yüklenemedi',
@@ -54,7 +54,7 @@ export const useProductStore = create<ProductState>((set, get) => ({
   createProduct: async (data: CreateProductData) => {
     try {
       const res = await api.post('/api/products', data);
-      const newProduct: Product = res.data;
+      const newProduct: Product = res.data.data;
       set((state) => ({ products: [...state.products, newProduct] }));
       return newProduct;
     } catch (error: any) {
@@ -65,7 +65,7 @@ export const useProductStore = create<ProductState>((set, get) => ({
   updateProduct: async (id: number, data: UpdateProductData) => {
     try {
       const res = await api.put(`/api/products/${id}`, data);
-      const updated: Product = res.data;
+      const updated: Product = res.data.data;
       set((state) => ({
         products: state.products.map((p) => (p.id === id ? updated : p)),
       }));
