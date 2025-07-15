@@ -11,7 +11,7 @@ interface ConfirmDialogProps {
   message: string;
   confirmText?: string;
   cancelText?: string;
-  type?: 'danger' | 'warning' | 'info';
+  type?: 'danger' | 'warning' | 'info' | 'success';
   children?: ReactNode;
 }
 
@@ -44,6 +44,11 @@ export default function ConfirmDialog({
         return {
           icon: 'text-blue-600',
           button: 'bg-blue-600 hover:bg-blue-700 text-white',
+        };
+      case 'success':
+        return {
+          icon: 'text-green-600',
+          button: 'bg-green-600 hover:bg-green-700 text-white',
         };
       default:
         return {
