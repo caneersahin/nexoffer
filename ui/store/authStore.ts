@@ -49,7 +49,7 @@ export const useAuthStore = create<AuthState>()(
             password,
           });
 
-          const { token, user } = response.data;
+          const { token, user } = response.data.data;
           
           set({ user, token, isLoading: false });
           
@@ -64,7 +64,7 @@ export const useAuthStore = create<AuthState>()(
         try {
           const response = await api.post('/api/auth/register', data);
           
-          const { token, user } = response.data;
+          const { token, user } = response.data.data;
           
           set({ user, token, isLoading: false });
           

@@ -37,7 +37,7 @@ export const useAdminStore = create<AdminState>((set) => ({
     set({ loading: true, error: null });
     try {
       const res = await api.get('/api/admin/dashboard');
-      set({ dashboard: res.data, loading: false });
+      set({ dashboard: res.data.data, loading: false });
     } catch (error: any) {
       set({
         error: error.response?.data?.message || 'Yönetici verileri yüklenemedi',

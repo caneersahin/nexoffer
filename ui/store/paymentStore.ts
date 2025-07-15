@@ -23,7 +23,7 @@ export const usePaymentStore = create<PaymentState>((set) => ({
     set({ loading: true, error: null });
     try {
       const res = await api.get('/api/company/payments');
-      set({ payments: res.data, loading: false });
+      set({ payments: res.data.data, loading: false });
     } catch (error: any) {
       set({
         error: error.response?.data?.message || 'Ödemeler yüklenemedi',

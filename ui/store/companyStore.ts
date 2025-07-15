@@ -48,7 +48,7 @@ export const useCompanyStore = create<CompanyState>((set, get) => ({
     set({ loading: true, error: null });
     try {
       const response = await api.get('/api/company/me');
-      set({ company: response.data, loading: false });
+      set({ company: response.data.data, loading: false });
     } catch (error: any) {
       set({ 
         error: error.response?.data?.message || 'Şirket bilgileri yüklenemedi', 
@@ -60,7 +60,7 @@ export const useCompanyStore = create<CompanyState>((set, get) => ({
   updateCompany: async (data: UpdateCompanyData) => {
     try {
       const response = await api.put('/api/company', data);
-      set({ company: response.data });
+      set({ company: response.data.data });
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Şirket bilgileri güncellenemedi');
     }
@@ -91,7 +91,7 @@ export const useCompanyStore = create<CompanyState>((set, get) => ({
         amount,
         transactionId: Math.random().toString(36).substring(2, 10),
       });
-      set({ company: response.data });
+      set({ company: response.data.data });
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Plan yükseltilemedi');
     }

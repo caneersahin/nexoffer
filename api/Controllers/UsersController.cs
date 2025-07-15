@@ -23,11 +23,23 @@ public class UsersController : ControllerBase
         var companyIdClaim = User.FindFirst("CompanyId")?.Value;
         if (companyIdClaim == null || !int.TryParse(companyIdClaim, out var companyId))
         {
-            return BadRequest("Invalid company");
+            return BadRequest(new BaseResponse<string>
+            {
+                Success = false,
+                StatusCode = 400,
+                Message = "Geçersiz şirket",
+                Data = null
+            });
         }
 
         var users = await _userService.GetUsersByCompanyAsync(companyId);
-        return Ok(users);
+        return Ok(new BaseResponse<List<UserDto>>
+        {
+            Success = true,
+            StatusCode = 200,
+            Message = "Kullanıcılar getirildi",
+            Data = users
+        });
     }
 
     [HttpPost]
@@ -36,16 +48,34 @@ public class UsersController : ControllerBase
         var companyIdClaim = User.FindFirst("CompanyId")?.Value;
         if (companyIdClaim == null || !int.TryParse(companyIdClaim, out var companyId))
         {
-            return BadRequest("Invalid company");
+            return BadRequest(new BaseResponse<string>
+            {
+                Success = false,
+                StatusCode = 400,
+                Message = "Geçersiz şirket",
+                Data = null
+            });
         }
 
         var user = await _userService.CreateUserAsync(request, companyId);
         if (user == null)
         {
-            return BadRequest("Failed to create user");
+            return BadRequest(new BaseResponse<string>
+            {
+                Success = false,
+                StatusCode = 400,
+                Message = "Kullanıcı oluşturulamadı",
+                Data = null
+            });
         }
 
-        return CreatedAtAction(nameof(GetUsers), user);
+        return CreatedAtAction(nameof(GetUsers), new BaseResponse<UserDto>
+        {
+            Success = true,
+            StatusCode = 201,
+            Message = "Kullanıcı oluşturuldu",
+            Data = user
+        });
     }
 
     [HttpPut("{id}")]
@@ -54,10 +84,22 @@ public class UsersController : ControllerBase
         var user = await _userService.UpdateUserAsync(id, request);
         if (user == null)
         {
-            return NotFound("User not found");
+            return NotFound(new BaseResponse<string>
+            {
+                Success = false,
+                StatusCode = 404,
+                Message = "Kullanıcı bulunamadı",
+                Data = null
+            });
         }
 
-        return Ok(user);
+        return Ok(new BaseResponse<UserDto>
+        {
+            Success = true,
+            StatusCode = 200,
+            Message = "Kullanıcı güncellendi",
+            Data = user
+        });
     }
 
     [HttpDelete("{id}")]
@@ -66,10 +108,22 @@ public class UsersController : ControllerBase
         var success = await _userService.DeleteUserAsync(id);
         if (!success)
         {
-            return NotFound("User not found");
+            return NotFound(new BaseResponse<string>
+            {
+                Success = false,
+                StatusCode = 404,
+                Message = "Kullanıcı bulunamadı",
+                Data = null
+            });
         }
 
-        return Ok(new { Success = true, Message = "User deleted successfully" });
+        return Ok(new BaseResponse<string>
+        {
+            Success = true,
+            StatusCode = 200,
+            Message = "Kullanıcı silindi",
+            Data = null
+        });
     }
 
     [HttpPost("{id}/toggle-status")]
@@ -78,9 +132,21 @@ public class UsersController : ControllerBase
         var success = await _userService.ToggleUserStatusAsync(id);
         if (!success)
         {
-            return NotFound("User not found");
+            return NotFound(new BaseResponse<string>
+            {
+                Success = false,
+                StatusCode = 404,
+                Message = "Kullanıcı bulunamadı",
+                Data = null
+            });
         }
 
-        return Ok(new { Success = true, Message = "User status updated successfully" });
+        return Ok(new BaseResponse<string>
+        {
+            Success = true,
+            StatusCode = 200,
+            Message = "Kullanıcı durumu güncellendi",
+            Data = null
+        });
     }
 }

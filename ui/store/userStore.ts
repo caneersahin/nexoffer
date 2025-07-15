@@ -48,7 +48,7 @@ export const useUserStore = create<UserState>((set, get) => ({
     set({ loading: true, error: null });
     try {
       const response = await api.get('/api/users');
-      set({ users: response.data, loading: false });
+      set({ users: response.data.data, loading: false });
     } catch (error: any) {
       set({
         error: error.response?.data?.message || 'Kullanıcılar yüklenemedi',
@@ -66,7 +66,7 @@ export const useUserStore = create<UserState>((set, get) => ({
       }
 
       const response = await api.post('/api/users', data);
-      const newUser: User = response.data;
+      const newUser: User = response.data.data;
       set((state) => ({ users: [...state.users, newUser] }));
       return newUser;
     } catch (error: any) {
@@ -77,7 +77,7 @@ export const useUserStore = create<UserState>((set, get) => ({
   updateUser: async (id: string, data: UpdateUserData) => {
     try {
       const response = await api.put(`/api/users/${id}`, data);
-      const updatedUser: User = response.data;
+      const updatedUser: User = response.data.data;
       set((state) => ({
         users: state.users.map((u) => (u.id === id ? updatedUser : u)),
       }));

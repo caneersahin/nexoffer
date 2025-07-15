@@ -22,10 +22,22 @@ public class AuthController : ControllerBase
         var response = await _authService.LoginAsync(request);
         if (!response.Success)
         {
-            return BadRequest(response);
+            return BadRequest(new BaseResponse<AuthResponse>
+            {
+                Success = false,
+                StatusCode = 400,
+                Message = response.Message,
+                Data = null
+            });
         }
 
-        return Ok(response);
+        return Ok(new BaseResponse<AuthResponse>
+        {
+            Success = true,
+            StatusCode = 200,
+            Message = "Giriş başarılı",
+            Data = response
+        });
     }
 
     [HttpPost("register")]
@@ -34,10 +46,22 @@ public class AuthController : ControllerBase
         var response = await _authService.RegisterAsync(request);
         if (!response.Success)
         {
-            return BadRequest(response);
+            return BadRequest(new BaseResponse<AuthResponse>
+            {
+                Success = false,
+                StatusCode = 400,
+                Message = response.Message,
+                Data = null
+            });
         }
 
-        return Ok(response);
+        return Ok(new BaseResponse<AuthResponse>
+        {
+            Success = true,
+            StatusCode = 200,
+            Message = "Kayıt başarılı",
+            Data = response
+        });
     }
 
     [HttpPost("refresh")]
@@ -46,10 +70,22 @@ public class AuthController : ControllerBase
         var response = await _authService.RefreshTokenAsync(request);
         if (!response.Success)
         {
-            return BadRequest(response);
+            return BadRequest(new BaseResponse<AuthResponse>
+            {
+                Success = false,
+                StatusCode = 400,
+                Message = response.Message,
+                Data = null
+            });
         }
 
-        return Ok(response);
+        return Ok(new BaseResponse<AuthResponse>
+        {
+            Success = true,
+            StatusCode = 200,
+            Message = "Token yenilendi",
+            Data = response
+        });
     }
 
     [HttpPost("logout")]
@@ -59,10 +95,22 @@ public class AuthController : ControllerBase
         var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
         if (userId == null)
         {
-            return BadRequest("Invalid user");
+            return BadRequest(new BaseResponse<string>
+            {
+                Success = false,
+                StatusCode = 400,
+                Message = "Geçersiz kullanıcı",
+                Data = null
+            });
         }
 
         await _authService.LogoutAsync(userId);
-        return Ok(new { Success = true, Message = "Logged out successfully" });
+        return Ok(new BaseResponse<string>
+        {
+            Success = true,
+            StatusCode = 200,
+            Message = "Çıkış yapıldı",
+            Data = null
+        });
     }
 }
