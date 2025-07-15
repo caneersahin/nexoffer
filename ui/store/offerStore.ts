@@ -22,7 +22,7 @@ interface Offer {
   currency: 'TRY' | 'USD' | 'EUR';
   notes?: string;
   totalAmount: number;
-  status: 'Draft' | 'Sent' | 'Accepted' | 'Rejected' | 'Expired';
+  status: 'Draft' | 'Sent' | 'Viewed' | 'Accepted' | 'Rejected' | 'Expired' | 'Cancelled';
   createdAt: string;
   companyName: string;
   items: OfferItem[];
@@ -55,6 +55,9 @@ interface OfferState {
   updateOffer: (id: number, data: CreateOfferData) => Promise<Offer>;
   deleteOffer: (id: number) => Promise<void>;
   sendOffer: (id: number) => Promise<void>;
+  acceptOffer: (id: number) => Promise<void>;
+  rejectOffer: (id: number) => Promise<void>;
+  cancelOffer: (id: number) => Promise<void>;
   downloadOfferPdf: (id: number) => Promise<void>;
   setCurrentOffer: (offer: Offer | null) => void;
 }
@@ -160,6 +163,54 @@ export const useOfferStore = create<OfferState>((set, get) => ({
       }));
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Teklif gönderilemedi');
+    }
+  },
+
+  acceptOffer: async (id: number) => {
+    try {
+      await api.post(`/api/offers/${id}/accept`);
+      set((state) => ({
+        offers: state.offers.map((offer) =>
+          offer.id === id ? { ...offer, status: 'Accepted' as const } : offer
+        ),
+        currentOffer: state.currentOffer?.id === id
+          ? { ...state.currentOffer, status: 'Accepted' as const }
+          : state.currentOffer,
+      }));
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Durum güncellenemedi');
+    }
+  },
+
+  rejectOffer: async (id: number) => {
+    try {
+      await api.post(`/api/offers/${id}/reject`);
+      set((state) => ({
+        offers: state.offers.map((offer) =>
+          offer.id === id ? { ...offer, status: 'Rejected' as const } : offer
+        ),
+        currentOffer: state.currentOffer?.id === id
+          ? { ...state.currentOffer, status: 'Rejected' as const }
+          : state.currentOffer,
+      }));
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Durum güncellenemedi');
+    }
+  },
+
+  cancelOffer: async (id: number) => {
+    try {
+      await api.post(`/api/offers/${id}/cancel`);
+      set((state) => ({
+        offers: state.offers.map((offer) =>
+          offer.id === id ? { ...offer, status: 'Cancelled' as const } : offer
+        ),
+        currentOffer: state.currentOffer?.id === id
+          ? { ...state.currentOffer, status: 'Cancelled' as const }
+          : state.currentOffer,
+      }));
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Durum güncellenemedi');
     }
   },
 

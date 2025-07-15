@@ -11,5 +11,8 @@ public interface IOfferService
     Task<OfferDto?> UpdateOfferAsync(int id, UpdateOfferRequest request);
     Task<bool> DeleteOfferAsync(int id, string userId);
     Task<bool> SendOfferAsync(int id, string userId);
+    Task<bool> AcceptOfferAsync(int id, string userId);
+    Task<bool> RejectOfferAsync(int id, string userId);
+    Task<bool> CancelOfferAsync(int id, string userId);
     Task<byte[]?> GetOfferPdfAsync(int id, string userId);
 }

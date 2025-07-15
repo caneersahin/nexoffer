@@ -72,9 +72,11 @@ public enum Currency
 
 public enum OfferStatus
 {
-    Draft,
-    Sent,
-    Accepted,
-    Rejected,
-    Expired
+    Draft = 0,
+    Sent = 1,
+    Viewed = 2,
+    Accepted = 3,
+    Rejected = 4,
+    Expired = 5,
+    Cancelled = 6
 }

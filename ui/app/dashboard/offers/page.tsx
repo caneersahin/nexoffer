@@ -74,12 +74,16 @@ export default function OffersPage() {
         return 'bg-gray-100 text-gray-800';
       case 'Sent':
         return 'bg-blue-100 text-blue-800';
+      case 'Viewed':
+        return 'bg-indigo-100 text-indigo-800';
       case 'Accepted':
         return 'bg-green-100 text-green-800';
       case 'Rejected':
         return 'bg-red-100 text-red-800';
       case 'Expired':
         return 'bg-yellow-100 text-yellow-800';
+      case 'Cancelled':
+        return 'bg-gray-300 text-gray-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -127,9 +131,11 @@ export default function OffersPage() {
                 <option value="all">Tüm Durumlar</option>
                 <option value="Draft">Taslak</option>
                 <option value="Sent">Gönderildi</option>
+                <option value="Viewed">Görüntülendi</option>
                 <option value="Accepted">Kabul Edildi</option>
                 <option value="Rejected">Reddedildi</option>
                 <option value="Expired">Süresi Doldu</option>
+                <option value="Cancelled">İptal Edildi</option>
               </select>
             </div>
           </div>

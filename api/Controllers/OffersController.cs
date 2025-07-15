@@ -220,6 +220,114 @@ public class OffersController : ControllerBase
         });
     }
 
+    [HttpPost("{id}/accept")]
+    public async Task<IActionResult> AcceptOffer(int id)
+    {
+        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (userId == null)
+        {
+            return BadRequest(new BaseResponse<string>
+            {
+                Success = false,
+                StatusCode = 400,
+                Message = "Geçersiz kullanıcı",
+                Data = null
+            });
+        }
+
+        var success = await _offerService.AcceptOfferAsync(id, userId);
+        if (!success)
+        {
+            return BadRequest(new BaseResponse<string>
+            {
+                Success = false,
+                StatusCode = 400,
+                Message = "Durum güncellenemedi",
+                Data = null
+            });
+        }
+
+        return Ok(new BaseResponse<string>
+        {
+            Success = true,
+            StatusCode = 200,
+            Message = "Teklif onaylandı",
+            Data = null
+        });
+    }
+
+    [HttpPost("{id}/reject")]
+    public async Task<IActionResult> RejectOffer(int id)
+    {
+        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (userId == null)
+        {
+            return BadRequest(new BaseResponse<string>
+            {
+                Success = false,
+                StatusCode = 400,
+                Message = "Geçersiz kullanıcı",
+                Data = null
+            });
+        }
+
+        var success = await _offerService.RejectOfferAsync(id, userId);
+        if (!success)
+        {
+            return BadRequest(new BaseResponse<string>
+            {
+                Success = false,
+                StatusCode = 400,
+                Message = "Durum güncellenemedi",
+                Data = null
+            });
+        }
+
+        return Ok(new BaseResponse<string>
+        {
+            Success = true,
+            StatusCode = 200,
+            Message = "Teklif reddedildi",
+            Data = null
+        });
+    }
+
+    [HttpPost("{id}/cancel")]
+    public async Task<IActionResult> CancelOffer(int id)
+    {
+        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (userId == null)
+        {
+            return BadRequest(new BaseResponse<string>
+            {
+                Success = false,
+                StatusCode = 400,
+                Message = "Geçersiz kullanıcı",
+                Data = null
+            });
+        }
+
+        var success = await _offerService.CancelOfferAsync(id, userId);
+        if (!success)
+        {
+            return BadRequest(new BaseResponse<string>
+            {
+                Success = false,
+                StatusCode = 400,
+                Message = "Durum güncellenemedi",
+                Data = null
+            });
+        }
+
+        return Ok(new BaseResponse<string>
+        {
+            Success = true,
+            StatusCode = 200,
+            Message = "Teklif iptal edildi",
+            Data = null
+        });
+    }
+
     [HttpGet("{id}/pdf")]
     public async Task<IActionResult> GetOfferPdf(int id)
     {
