@@ -24,7 +24,7 @@ import toast from 'react-hot-toast';
 
 export default function OffersPage() {
   const router = useRouter();
-  const { offers, fetchOffers, deleteOffer, sendOffer, loading } = useOfferStore();
+  const { offers, fetchOffers, deleteOffer, sendOffer, downloadOfferPdf, loading } = useOfferStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -238,18 +238,23 @@ export default function OffersPage() {
                           >
                             <Edit className="h-4 w-4" />
                           </button>
-                          {offer.status !== 'Sent' && (
-                            <button
-                              onClick={() => {
-                                setOfferToSend(offer.id);
-                                setSendDialogOpen(true);
-                              }}
-                              className="text-green-400 hover:text-green-600"
-                              title="Gönder"
-                            >
-                              <Send className="h-4 w-4" />
-                            </button>
-                          )}
+                          <button
+                            onClick={() => {
+                              setOfferToSend(offer.id);
+                              setSendDialogOpen(true);
+                            }}
+                            className="text-green-400 hover:text-green-600"
+                            title="Gönder"
+                          >
+                            <Send className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => downloadOfferPdf(offer.id)}
+                            className="text-indigo-400 hover:text-indigo-600"
+                            title="PDF"
+                          >
+                            <Download className="h-4 w-4" />
+                          </button>
                           <button
                             onClick={() => {
                               setSelectedOfferId(offer.id);

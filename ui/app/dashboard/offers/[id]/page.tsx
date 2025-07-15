@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useOfferStore } from '@/store/offerStore';
-import { ArrowLeft, Edit, Send } from 'lucide-react';
+import { ArrowLeft, Edit, Send, Download } from 'lucide-react';
 import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
 import ConfirmDialog from '@/components/ConfirmDialog';
@@ -14,7 +14,7 @@ export default function OfferDetailPage() {
   const router = useRouter();
   const params = useParams();
   const id = Number(params.id);
-  const { currentOffer: offer, fetchOffer, sendOffer, loading } = useOfferStore();
+  const { currentOffer: offer, fetchOffer, sendOffer, downloadOfferPdf, loading } = useOfferStore();
   const [sendDialogOpen, setSendDialogOpen] = useState(false);
 
   useEffect(() => {
@@ -169,17 +169,22 @@ export default function OfferDetailPage() {
         </div>
       </div>
 
-      {offer.status !== 'Sent' && (
-        <div className="flex justify-end">
-          <button
-            onClick={() => setSendDialogOpen(true)}
-            className="btn btn-primary btn-md"
-          >
-            <Send className="h-4 w-4 mr-2" />
-            Teklifi Gönder
-          </button>
-        </div>
-      )}
+      <div className="flex justify-end space-x-2">
+        <button
+          onClick={() => downloadOfferPdf(id)}
+          className="btn btn-outline btn-md"
+        >
+          <Download className="h-4 w-4 mr-2" />
+          PDF Gör
+        </button>
+        <button
+          onClick={() => setSendDialogOpen(true)}
+          className="btn btn-primary btn-md"
+        >
+          <Send className="h-4 w-4 mr-2" />
+          Teklifi Gönder
+        </button>
+      </div>
 
       <ConfirmDialog
         isOpen={sendDialogOpen}

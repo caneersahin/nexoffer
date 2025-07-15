@@ -219,4 +219,34 @@ public class OffersController : ControllerBase
             Data = null
         });
     }
+
+    [HttpGet("{id}/pdf")]
+    public async Task<IActionResult> GetOfferPdf(int id)
+    {
+        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (userId == null)
+        {
+            return BadRequest(new BaseResponse<string>
+            {
+                Success = false,
+                StatusCode = 400,
+                Message = "Geçersiz kullanıcı",
+                Data = null
+            });
+        }
+
+        var pdf = await _offerService.GetOfferPdfAsync(id, userId);
+        if (pdf == null)
+        {
+            return NotFound(new BaseResponse<string>
+            {
+                Success = false,
+                StatusCode = 404,
+                Message = "Teklif bulunamadı",
+                Data = null
+            });
+        }
+
+        return File(pdf, "application/pdf", $"teklif-{id}.pdf");
+    }
 }
