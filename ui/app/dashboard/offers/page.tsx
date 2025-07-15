@@ -4,17 +4,20 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useOfferStore } from '@/store/offerStore';
 import { 
-  Plus, 
-  Search, 
-  Filter, 
-  Eye, 
-  Edit, 
-  Trash2, 
+  Plus,
+  Search,
+  Filter,
+  Eye,
+  Edit,
+  Trash2,
   Send,
   Download,
   Calendar,
   User,
-  DollarSign
+  DollarSign,
+  MessageCircle,
+  Check,
+  X
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
@@ -24,7 +27,7 @@ import toast from 'react-hot-toast';
 
 export default function OffersPage() {
   const router = useRouter();
-  const { offers, fetchOffers, deleteOffer, sendOffer, downloadOfferPdf, loading } = useOfferStore();
+  const { offers, fetchOffers, deleteOffer, sendOffer, downloadOfferPdf, acceptOffer, rejectOffer, loading } = useOfferStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -66,6 +69,15 @@ export default function OffersPage() {
     } catch (error: any) {
       toast.error(error.message);
     }
+  };
+
+  const handleShareWhatsapp = (offer: typeof offers[0]) => {
+    const pdfLink = `${window.location.origin}/teklifler/pdf/${offer.id}.pdf`;
+    const mesaj = `Merhaba, size özel teklifiniz hazırlandı. İncelemek için tıklayın:\n${pdfLink}`;
+    const whatsappLink = offer.customerPhone
+      ? `https://wa.me/${offer.customerPhone}?text=${encodeURIComponent(mesaj)}`
+      : `https://wa.me/?text=${encodeURIComponent(mesaj)}`;
+    window.open(whatsappLink, '_blank');
   };
 
   const getStatusColor = (status: string) => {
@@ -229,7 +241,7 @@ export default function OffersPage() {
                         </div>
                       </td>
                       <td className="table-cell">
-                        <div className="flex items-center space-x-2">
+                        <div className="flex flex-wrap items-center gap-2">
                           <button
                             onClick={() => router.push(`/dashboard/offers/${offer.id}`)}
                             className="text-gray-400 hover:text-gray-600"
@@ -261,6 +273,39 @@ export default function OffersPage() {
                           >
                             <Download className="h-4 w-4" />
                           </button>
+                          <button
+                            onClick={() => handleShareWhatsapp(offer)}
+                            className="text-green-600 hover:text-green-800"
+                            title="WhatsApp"
+                          >
+                            <MessageCircle className="h-4 w-4" />
+                          </button>
+                          {offer.status !== 'Accepted' && (
+                            <button
+                              onClick={() => {
+                                if (confirm('Teklifi onaylamak istediğinize emin misiniz?')) {
+                                  acceptOffer(offer.id);
+                                }
+                              }}
+                              className="text-green-400 hover:text-green-600"
+                              title="Onayla"
+                            >
+                              <Check className="h-4 w-4" />
+                            </button>
+                          )}
+                          {offer.status !== 'Rejected' && (
+                            <button
+                              onClick={() => {
+                                if (confirm('Teklifi reddetmek istediğinize emin misiniz?')) {
+                                  rejectOffer(offer.id);
+                                }
+                              }}
+                              className="text-red-400 hover:text-red-600"
+                              title="Reddet"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          )}
                           <button
                             onClick={() => {
                               setSelectedOfferId(offer.id);

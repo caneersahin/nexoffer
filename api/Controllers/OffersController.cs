@@ -357,4 +357,23 @@ public class OffersController : ControllerBase
 
         return File(pdf, "application/pdf", $"teklif-{id}.pdf");
     }
+
+    [AllowAnonymous]
+    [HttpGet("pdf/{id}.pdf")]
+    public async Task<IActionResult> GetOfferPdfPublic(int id)
+    {
+        var pdf = await _offerService.GetOfferPdfPublicAsync(id);
+        if (pdf == null)
+        {
+            return NotFound(new BaseResponse<string>
+            {
+                Success = false,
+                StatusCode = 404,
+                Message = "Teklif bulunamadı",
+                Data = null
+            });
+        }
+
+        return File(pdf, "application/pdf", $"teklif-{id}.pdf");
+    }
 }

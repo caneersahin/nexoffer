@@ -248,6 +248,25 @@ public class OfferService : IOfferService
         return GenerateOfferPdf(offer);
     }
 
+    public async Task<byte[]?> GetOfferPdfPublicAsync(int id)
+    {
+        var offer = await _context.Offers
+            .Include(o => o.Items)
+            .Include(o => o.Company)
+            .Include(o => o.User)
+            .FirstOrDefaultAsync(o => o.Id == id);
+
+        if (offer == null) return null;
+
+        if (offer.Status == OfferStatus.Sent)
+        {
+            offer.Status = OfferStatus.Viewed;
+            await _context.SaveChangesAsync();
+        }
+
+        return GenerateOfferPdf(offer);
+    }
+
     private string GenerateOfferNumber(string? lastOfferNumber)
     {
         if (string.IsNullOrEmpty(lastOfferNumber))
