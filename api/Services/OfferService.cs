@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using OfferManagement.API.Data;
 using OfferManagement.API.DTOs;
 using OfferManagement.API.Models;
+using System;
 using System.ComponentModel.Design;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
@@ -65,6 +66,7 @@ public class OfferService : IOfferService
             DueDate = request.DueDate,
             Currency = request.Currency,
             Notes = request.Notes,
+            PublicToken = Guid.NewGuid().ToString(),
             UserId = userId,
             CompanyId = user.CompanyId.Value,
             Items = request.Items.Select(item => new OfferItem
@@ -248,13 +250,13 @@ public class OfferService : IOfferService
         return GenerateOfferPdf(offer);
     }
 
-    public async Task<byte[]?> GetOfferPdfPublicAsync(int id)
+    public async Task<byte[]?> GetOfferPdfPublicAsync(string token)
     {
         var offer = await _context.Offers
             .Include(o => o.Items)
             .Include(o => o.Company)
             .Include(o => o.User)
-            .FirstOrDefaultAsync(o => o.Id == id);
+            .FirstOrDefaultAsync(o => o.PublicToken == token);
 
         if (offer == null) return null;
 
@@ -265,6 +267,25 @@ public class OfferService : IOfferService
         }
 
         return GenerateOfferPdf(offer);
+    }
+
+    public async Task<OfferDto?> GetOfferByTokenAsync(string token)
+    {
+        var offer = await _context.Offers
+            .Include(o => o.Items)
+            .Include(o => o.Company)
+            .Include(o => o.User)
+            .FirstOrDefaultAsync(o => o.PublicToken == token);
+
+        if (offer == null) return null;
+
+        if (offer.Status == OfferStatus.Sent)
+        {
+            offer.Status = OfferStatus.Viewed;
+            await _context.SaveChangesAsync();
+        }
+
+        return MapToDto(offer);
     }
 
     private string GenerateOfferNumber(string? lastOfferNumber)
@@ -301,6 +322,7 @@ public class OfferService : IOfferService
             TotalAmount = offer.TotalAmount,
             Status = offer.Status,
             CreatedAt = offer.CreatedAt,
+            PublicToken = offer.PublicToken,
             CompanyName = offer.Company.Name,
             Items = offer.Items.Select(item => new OfferItemDto
             {

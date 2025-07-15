@@ -359,10 +359,10 @@ public class OffersController : ControllerBase
     }
 
     [AllowAnonymous]
-    [HttpGet("pdf/{id}.pdf")]
-    public async Task<IActionResult> GetOfferPdfPublic(int id)
+    [HttpGet("pdf/{token}.pdf")]
+    public async Task<IActionResult> GetOfferPdfPublic(string token)
     {
-        var pdf = await _offerService.GetOfferPdfPublicAsync(id);
+        var pdf = await _offerService.GetOfferPdfPublicAsync(token);
         if (pdf == null)
         {
             return NotFound(new BaseResponse<string>
@@ -374,6 +374,31 @@ public class OffersController : ControllerBase
             });
         }
 
-        return File(pdf, "application/pdf", $"teklif-{id}.pdf");
+        return File(pdf, "application/pdf", $"teklif-{token}.pdf");
+    }
+
+    [AllowAnonymous]
+    [HttpGet("public/{token}")]
+    public async Task<IActionResult> GetOfferByToken(string token)
+    {
+        var offer = await _offerService.GetOfferByTokenAsync(token);
+        if (offer == null)
+        {
+            return NotFound(new BaseResponse<string>
+            {
+                Success = false,
+                StatusCode = 404,
+                Message = "Teklif bulunamadı",
+                Data = null
+            });
+        }
+
+        return Ok(new BaseResponse<OfferDto>
+        {
+            Success = true,
+            StatusCode = 200,
+            Message = "Teklif getirildi",
+            Data = offer
+        });
     }
 }

@@ -52,7 +52,7 @@ export default function OfferActionsDropdown({
         <MoreVertical className="h-4 w-4" />
       </button>
       {open && (
-        <div className="origin-top-right absolute right-0 mt-2 w-40 rounded-md shadow-lg bg-white dark:bg-gray-700 ring-1 ring-black ring-opacity-5 z-10">
+        <div className="origin-top-right absolute right-0 mt-2 w-40 rounded-md shadow-lg bg-white dark:bg-gray-700 ring-1 ring-black ring-opacity-5 z-50">
           <div className="py-1">
             <button onClick={() => handle(onView)} className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-600">
               <Eye className="h-4 w-4 mr-2" />Görüntüle

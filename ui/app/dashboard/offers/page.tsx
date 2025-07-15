@@ -92,8 +92,8 @@ export default function OffersPage() {
   };
 
   const handleShareWhatsapp = (offer: typeof offers[0]) => {
-    const pdfLink = `${window.location.origin}/teklifler/pdf/${offer.id}.pdf`;
-    const mesaj = `Merhaba, size özel teklifiniz hazırlandı. İncelemek için tıklayın:\n${pdfLink}`;
+    const pageLink = `${window.location.origin}/public-offer/${offer.publicToken}`;
+    const mesaj = `Merhaba, size özel teklifiniz hazırlandı. İncelemek için tıklayın:\n${pageLink}`;
     const whatsappLink = offer.customerPhone
       ? `https://wa.me/${offer.customerPhone}?text=${encodeURIComponent(mesaj)}`
       : `https://wa.me/?text=${encodeURIComponent(mesaj)}`;
@@ -208,7 +208,7 @@ export default function OffersPage() {
               )}
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto overflow-visible">
               <table className="table">
                 <thead className="table-header">
                   <tr>

@@ -24,6 +24,7 @@ interface Offer {
   totalAmount: number;
   status: 'Draft' | 'Sent' | 'Viewed' | 'Accepted' | 'Rejected' | 'Expired' | 'Cancelled';
   createdAt: string;
+  publicToken: string;
   companyName: string;
   items: OfferItem[];
 }

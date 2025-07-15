@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace OfferManagement.API.Models;
@@ -31,6 +32,10 @@ public class Offer
     public decimal TotalAmount { get; set; }
     
     public OfferStatus Status { get; set; } = OfferStatus.Draft;
+
+    public string PublicToken { get; set; } = Guid.NewGuid().ToString();
+
+    public DateTime? TokenExpiresAt { get; set; }
     
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     

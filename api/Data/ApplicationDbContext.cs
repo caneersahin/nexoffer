@@ -56,6 +56,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.CustomerAddress).IsRequired().HasMaxLength(500);
             entity.Property(e => e.TotalAmount).HasColumnType("decimal(18,2)");
             entity.Property(e => e.Notes).HasMaxLength(2000);
+            entity.Property(e => e.PublicToken).HasMaxLength(100);
+            entity.HasIndex(e => e.PublicToken).IsUnique();
 
             entity.HasOne(o => o.User)
                   .WithMany(u => u.Offers)

@@ -14,6 +14,10 @@ const nextConfig = {
         source: '/teklifler/pdf/:id.pdf',
         destination: `${process.env.NEXT_PUBLIC_API_URL}/api/offers/pdf/:id.pdf`,
       },
+      {
+        source: '/public-offer/pdf/:token.pdf',
+        destination: `${process.env.NEXT_PUBLIC_API_URL}/api/offers/pdf/:token.pdf`,
+      },
     ];
   },
 };
