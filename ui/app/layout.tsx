@@ -15,6 +15,7 @@ export const metadata: Metadata = {
   icons: {
     icon: '/favicon.ico', // favicon.ico'yu public klasörüne koy
   },
+  manifest: '/manifest.json',
   openGraph: {
     title: 'Nexoffer',
     description: 'Profesyonel teklif hazırlama ve yönetim platformu',
