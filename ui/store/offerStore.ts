@@ -7,6 +7,8 @@ interface OfferItem {
   description: string;
   quantity: number;
   unitPrice: number;
+  discount: number;
+  vatRate: number;
   totalPrice: number;
 }
 
@@ -42,6 +44,8 @@ interface CreateOfferData {
     description: string;
     quantity: number;
     unitPrice: number;
+    discount: number;
+    vatRate: number;
   }[];
 }
 

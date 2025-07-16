@@ -53,14 +53,20 @@ public class Offer
 public class OfferItem
 {
     public int Id { get; set; }
-    
+
     [Required]
     public string Description { get; set; } = string.Empty;
-    
+
     public int Quantity { get; set; } = 1;
-    
+
     public decimal UnitPrice { get; set; }
-    
+
+    // Discount amount applied to this item
+    public decimal Discount { get; set; } = 0m;
+
+    // VAT rate for this item (e.g. 20 for %20)
+    public decimal VatRate { get; set; } = 0m;
+
     public decimal TotalPrice { get; set; }
     
     public int OfferId { get; set; }

@@ -12,6 +12,8 @@ interface OfferItem {
   description: string;
   quantity: number;
   unitPrice: number;
+  discount: number;
+  vatRate: number;
   totalPrice: number;
 }
 
@@ -58,6 +60,8 @@ export default function EditOfferPage() {
           description: item.description,
           quantity: item.quantity,
           unitPrice: item.unitPrice,
+          discount: item.discount,
+          vatRate: item.vatRate,
           totalPrice: item.totalPrice,
         }))
       );
@@ -80,15 +84,15 @@ export default function EditOfferPage() {
       [field]: value,
     };
 
-    if (field === 'quantity' || field === 'unitPrice') {
-      newItems[index].totalPrice = newItems[index].quantity * newItems[index].unitPrice;
+    if (field === 'quantity' || field === 'unitPrice' || field === 'discount') {
+      newItems[index].totalPrice = newItems[index].quantity * newItems[index].unitPrice - newItems[index].discount;
     }
 
     setItems(newItems);
   };
 
   const addItem = () => {
-    setItems([...items, { description: '', quantity: 1, unitPrice: 0, totalPrice: 0 }]);
+    setItems([...items, { description: '', quantity: 1, unitPrice: 0, discount: 0, vatRate: 0, totalPrice: 0 }]);
   };
 
   const removeItem = (index: number) => {
@@ -98,7 +102,7 @@ export default function EditOfferPage() {
   };
 
   const getTotalAmount = () => {
-    return items.reduce((sum, item) => sum + item.totalPrice, 0);
+    return items.reduce((sum, item) => sum + item.totalPrice * (1 + item.vatRate / 100), 0);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -112,6 +116,8 @@ export default function EditOfferPage() {
           description: item.description,
           quantity: item.quantity,
           unitPrice: item.unitPrice,
+          discount: item.discount,
+          vatRate: item.vatRate,
         })),
       };
 
@@ -277,7 +283,7 @@ export default function EditOfferPage() {
             <div className="space-y-4">
               {items.map((item, index) => (
                 <div key={index} className="p-4 border rounded-lg">
-                  <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-7 gap-4">
                     <div className="md:col-span-2">
                       <label className="block text-sm font-medium text-gray-700 mb-1">Açıklama</label>
                       <input
@@ -307,6 +313,28 @@ export default function EditOfferPage() {
                         className="input"
                         value={item.unitPrice}
                         onChange={e => handleItemChange(index, 'unitPrice', parseFloat(e.target.value))}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">İndirim</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        className="input"
+                        value={item.discount}
+                        onChange={e => handleItemChange(index, 'discount', parseFloat(e.target.value))}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">KDV %</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        className="input"
+                        value={item.vatRate}
+                        onChange={e => handleItemChange(index, 'vatRate', parseFloat(e.target.value))}
                       />
                     </div>
                     <div className="flex flex-col md:flex-row items-start md:items-end gap-2">
