@@ -27,6 +27,7 @@ export default function OffersPage() {
   const [selectedOfferId, setSelectedOfferId] = useState<number | null>(null);
   const [sendDialogOpen, setSendDialogOpen] = useState(false);
   const [offerToSend, setOfferToSend] = useState<number | null>(null);
+  const [sending, setSending] = useState(false);
   const [acceptDialogOpen, setAcceptDialogOpen] = useState(false);
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
   const [offerToAccept, setOfferToAccept] = useState<number | null>(null);
@@ -58,6 +59,7 @@ export default function OffersPage() {
 
   const handleSendOffer = async () => {
     if (!offerToSend) return;
+    setSending(true);
     try {
       await sendOffer(offerToSend);
       toast.success('Teklif gönderildi');
@@ -65,6 +67,8 @@ export default function OffersPage() {
       setOfferToSend(null);
     } catch (error: any) {
       toast.error(error.message);
+    } finally {
+      setSending(false);
     }
   };
 
@@ -315,6 +319,7 @@ export default function OffersPage() {
         title="Teklifi Gönder"
         message="Teklifi müşteriye göndermek istediğinizden emin misiniz?"
         confirmText="Gönder"
+        processing={sending}
         type="info"
       />
       <ConfirmDialog

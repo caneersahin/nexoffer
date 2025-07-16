@@ -1,6 +1,7 @@
 'use client';
 
 import { ReactNode } from 'react';
+import LoadingSpinner from './LoadingSpinner';
 import { AlertTriangle, X } from 'lucide-react';
 
 interface ConfirmDialogProps {
@@ -12,6 +13,7 @@ interface ConfirmDialogProps {
   confirmText?: string;
   cancelText?: string;
   type?: 'danger' | 'warning' | 'info' | 'success';
+  processing?: boolean;
   children?: ReactNode;
 }
 
@@ -24,6 +26,7 @@ export default function ConfirmDialog({
   confirmText = 'Onayla',
   cancelText = 'İptal',
   type = 'danger',
+  processing = false,
   children,
 }: ConfirmDialogProps) {
   if (!isOpen) return null;
@@ -90,9 +93,11 @@ export default function ConfirmDialog({
           </button>
           <button
             onClick={onConfirm}
+            disabled={processing}
             className={`btn btn-md ${typeStyles.button}`}
           >
-            {confirmText}
+            {processing && <LoadingSpinner size="sm" className="mr-2" />}
+            {processing ? 'İşleniyor...' : confirmText}
           </button>
         </div>
       </div>

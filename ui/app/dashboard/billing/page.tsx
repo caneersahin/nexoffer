@@ -246,7 +246,7 @@ export default function BillingPage() {
                 className={`relative border-2 rounded-lg p-6 ${
                   plan.popular
                     ? 'border-primary-500 bg-primary-50'
-                    : 'border-gray-200 bg-white'
+                    : 'border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800'
                 }`}
               >
                 {plan.popular && (
@@ -281,8 +281,16 @@ export default function BillingPage() {
                 
                 <div className="mt-6">
                   <button
-                    onClick={() => handlePlanSelect(plan.name, plan.price)}
-                    disabled={processing && selectedPlan?.name === plan.name}
+                    onClick={() =>
+                      company?.subscriptionPlan.toLowerCase() !==
+                        plan.name.toLowerCase() &&
+                      handlePlanSelect(plan.name, plan.price)
+                    }
+                    disabled={
+                      (processing && selectedPlan?.name === plan.name) ||
+                      company?.subscriptionPlan.toLowerCase() ===
+                        plan.name.toLowerCase()
+                    }
                     className={`w-full btn btn-md ${
                       plan.popular
                         ? 'btn-primary'
