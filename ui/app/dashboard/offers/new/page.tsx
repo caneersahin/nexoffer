@@ -90,7 +90,8 @@ export default function NewOfferPage() {
 
     // Recalculate total price
     if (field === 'quantity' || field === 'unitPrice' || field === 'discount') {
-      newItems[index].totalPrice = newItems[index].quantity * newItems[index].unitPrice - newItems[index].discount;
+      newItems[index].totalPrice =
+        newItems[index].quantity * newItems[index].unitPrice * (1 - newItems[index].discount / 100);
     }
     
     setItems(newItems);
@@ -105,7 +106,8 @@ export default function NewOfferPage() {
         productId: product.id,
         description: product.name,
         unitPrice: product.price,
-        totalPrice: newItems[index].quantity * product.price - newItems[index].discount,
+        totalPrice:
+          newItems[index].quantity * product.price * (1 - newItems[index].discount / 100),
       };
     } else {
       newItems[index] = { ...newItems[index], productId: undefined };
@@ -123,8 +125,22 @@ export default function NewOfferPage() {
     }
   };
 
-  const getTotalAmount = () => {
-    return items.reduce((sum, item) => sum + item.totalPrice * (1 + item.vatRate / 100), 0);
+  const calculateTotals = () => {
+    const totalBeforeDiscount = items.reduce(
+      (sum, item) => sum + item.quantity * item.unitPrice,
+      0
+    );
+    const discountTotal = items.reduce(
+      (sum, item) => sum + item.quantity * item.unitPrice * (item.discount / 100),
+      0
+    );
+    const subTotal = totalBeforeDiscount - discountTotal;
+    const vatTotal = items.reduce(
+      (sum, item) => sum + item.totalPrice * (item.vatRate / 100),
+      0
+    );
+    const grandTotal = subTotal + vatTotal;
+    return { totalBeforeDiscount, discountTotal, subTotal, vatTotal, grandTotal };
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -403,7 +419,7 @@ export default function NewOfferPage() {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        İndirim
+                        İndirim %
                       </label>
                       <input
                         type="number"
@@ -454,19 +470,60 @@ export default function NewOfferPage() {
               ))}
             </div>
 
-            {/* Total */}
+            {/* Totals */}
             <div className="mt-6 pt-4 border-t">
-              <div className="flex justify-end">
-                <div className="text-right">
-                  <p className="text-sm text-gray-600">Toplam Tutar</p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {getTotalAmount().toLocaleString('tr-TR', {
-                      style: 'currency',
-                      currency: formData.currency,
-                    })}
-                  </p>
-                </div>
-              </div>
+              {(() => {
+                const totals = calculateTotals();
+                return (
+                  <div className="space-y-1 text-right">
+                    <div>
+                      <span className="text-sm text-gray-600 mr-2">Ara Toplam:</span>
+                      <span className="font-medium">
+                        {totals.totalBeforeDiscount.toLocaleString('tr-TR', {
+                          style: 'currency',
+                          currency: formData.currency,
+                        })}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-sm text-gray-600 mr-2">İndirim:</span>
+                      <span className="font-medium">
+                        {totals.discountTotal.toLocaleString('tr-TR', {
+                          style: 'currency',
+                          currency: formData.currency,
+                        })}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-sm text-gray-600 mr-2">Ara Toplam (İndirimli):</span>
+                      <span className="font-medium">
+                        {totals.subTotal.toLocaleString('tr-TR', {
+                          style: 'currency',
+                          currency: formData.currency,
+                        })}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-sm text-gray-600 mr-2">KDV:</span>
+                      <span className="font-medium">
+                        {totals.vatTotal.toLocaleString('tr-TR', {
+                          style: 'currency',
+                          currency: formData.currency,
+                        })}
+                      </span>
+                    </div>
+                    <div className="pt-1 border-t">
+                      <p className="text-sm text-gray-600">Genel Toplam</p>
+                      <p className="text-2xl font-bold text-gray-900">
+                        {totals.grandTotal.toLocaleString('tr-TR', {
+                          style: 'currency',
+                          currency: formData.currency,
+                        })}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           </div>
         </div>
