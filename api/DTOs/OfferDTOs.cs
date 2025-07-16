@@ -28,6 +28,7 @@ public class OfferItemDto
     public string Description { get; set; } = string.Empty;
     public int Quantity { get; set; }
     public decimal UnitPrice { get; set; }
+    // Discount rate (e.g. 5 for %5)
     public decimal Discount { get; set; }
     public decimal VatRate { get; set; }
     public decimal TotalPrice { get; set; }
@@ -51,6 +52,7 @@ public class CreateOfferItemRequest
     public string Description { get; set; } = string.Empty;
     public int Quantity { get; set; } = 1;
     public decimal UnitPrice { get; set; }
+    // Discount rate (e.g. 5 for %5)
     public decimal Discount { get; set; } = 0m;
     public decimal VatRate { get; set; } = 0m;
 }

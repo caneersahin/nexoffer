@@ -61,7 +61,7 @@ public class OfferItem
 
     public decimal UnitPrice { get; set; }
 
-    // Discount amount applied to this item
+    // Discount rate applied to this item (e.g. 5 for %5)
     public decimal Discount { get; set; } = 0m;
 
     // VAT rate for this item (e.g. 20 for %20)

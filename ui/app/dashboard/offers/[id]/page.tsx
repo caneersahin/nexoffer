@@ -162,7 +162,9 @@ export default function OfferDetailPage() {
                     <th className="table-head">Açıklama</th>
                     <th className="table-head">Adet</th>
                     <th className="table-head">Birim Fiyat</th>
-                    <th className="table-head">Toplam</th>
+                    <th className="table-head">İndirim %</th>
+                    <th className="table-head">KDV %</th>
+                    <th className="table-head">Tutar</th>
                   </tr>
                 </thead>
                 <tbody className="table-body">
@@ -176,6 +178,8 @@ export default function OfferDetailPage() {
                           currency: offer.currency,
                         })}
                       </td>
+                      <td className="table-cell">{item.discount.toLocaleString('tr-TR')}%</td>
+                      <td className="table-cell">{item.vatRate}</td>
                       <td className="table-cell">
                         {item.totalPrice.toLocaleString('tr-TR', {
                           style: 'currency',
@@ -188,15 +192,71 @@ export default function OfferDetailPage() {
               </table>
             </div>
             <div className="flex justify-end mt-4">
-              <div className="text-right">
-                <p className="text-sm text-gray-600">Toplam Tutar</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {offer.totalAmount.toLocaleString('tr-TR', {
-                    style: 'currency',
-                    currency: offer.currency,
-                  })}
-                </p>
-              </div>
+              {(() => {
+                const totalBeforeDiscount = offer.items.reduce(
+                  (s, i) => s + i.quantity * i.unitPrice,
+                  0
+                );
+                const discountTotal = offer.items.reduce(
+                  (s, i) => s + i.quantity * i.unitPrice * (i.discount / 100),
+                  0
+                );
+                const subTotal = totalBeforeDiscount - discountTotal;
+                const vatTotal = offer.items.reduce(
+                  (s, i) => s + i.totalPrice * (i.vatRate / 100),
+                  0
+                );
+                const grandTotal = subTotal + vatTotal;
+                return (
+                  <div className="space-y-1 text-right">
+                    <div>
+                      <span className="text-sm text-gray-600 mr-2">Ara Toplam:</span>
+                      <span className="font-medium">
+                        {totalBeforeDiscount.toLocaleString('tr-TR', {
+                          style: 'currency',
+                          currency: offer.currency,
+                        })}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-sm text-gray-600 mr-2">İndirim:</span>
+                      <span className="font-medium">
+                        {discountTotal.toLocaleString('tr-TR', {
+                          style: 'currency',
+                          currency: offer.currency,
+                        })}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-sm text-gray-600 mr-2">Ara Toplam (İndirimli):</span>
+                      <span className="font-medium">
+                        {subTotal.toLocaleString('tr-TR', {
+                          style: 'currency',
+                          currency: offer.currency,
+                        })}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-sm text-gray-600 mr-2">KDV:</span>
+                      <span className="font-medium">
+                        {vatTotal.toLocaleString('tr-TR', {
+                          style: 'currency',
+                          currency: offer.currency,
+                        })}
+                      </span>
+                    </div>
+                    <div className="pt-1 border-t">
+                      <p className="text-sm text-gray-600">Genel Toplam</p>
+                      <p className="text-2xl font-bold text-gray-900">
+                        {grandTotal.toLocaleString('tr-TR', {
+                          style: 'currency',
+                          currency: offer.currency,
+                        })}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           </div>
         </div>

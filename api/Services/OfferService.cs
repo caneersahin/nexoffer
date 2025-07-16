@@ -76,11 +76,13 @@ public class OfferService : IOfferService
                 UnitPrice = item.UnitPrice,
                 Discount = item.Discount,
                 VatRate = item.VatRate,
-                TotalPrice = item.Quantity * item.UnitPrice - item.Discount
+                TotalPrice = item.Quantity * item.UnitPrice * (1 - item.Discount / 100m)
             }).ToList()
         };
 
-        var subTotal = offer.Items.Sum(i => i.TotalPrice);
+        var subTotalBeforeDiscount = offer.Items.Sum(i => i.Quantity * i.UnitPrice);
+        var discountTotal = offer.Items.Sum(i => i.Quantity * i.UnitPrice * i.Discount / 100m);
+        var subTotal = subTotalBeforeDiscount - discountTotal;
         var vatTotal = offer.Items.Sum(i => i.TotalPrice * i.VatRate / 100m);
         offer.TotalAmount = subTotal + vatTotal;
 
@@ -169,11 +171,13 @@ public class OfferService : IOfferService
             UnitPrice = item.UnitPrice,
             Discount = item.Discount,
             VatRate = item.VatRate,
-            TotalPrice = item.Quantity * item.UnitPrice - item.Discount,
+            TotalPrice = item.Quantity * item.UnitPrice * (1 - item.Discount / 100m),
             OfferId = offer.Id
         }).ToList();
 
-        var subTotal = offer.Items.Sum(i => i.TotalPrice);
+        var subTotalBeforeDiscount = offer.Items.Sum(i => i.Quantity * i.UnitPrice);
+        var discountTotal = offer.Items.Sum(i => i.Quantity * i.UnitPrice * i.Discount / 100m);
+        var subTotal = subTotalBeforeDiscount - discountTotal;
         var vatTotal = offer.Items.Sum(i => i.TotalPrice * i.VatRate / 100m);
         offer.TotalAmount = subTotal + vatTotal;
 
@@ -415,7 +419,7 @@ public class OfferService : IOfferService
                             header.Cell().Element(HeaderCell).Text("Ürün Açıklaması");
                             header.Cell().Element(HeaderCell).AlignCenter().Text("Adet");
                             header.Cell().Element(HeaderCell).AlignRight().Text("Birim Fiyat");
-                            header.Cell().Element(HeaderCell).AlignRight().Text("İndirim");
+                            header.Cell().Element(HeaderCell).AlignRight().Text("İndirim %");
                             header.Cell().Element(HeaderCell).AlignRight().Text("KDV %");
                             header.Cell().Element(HeaderCell).AlignRight().Text("Tutar");
                         });
@@ -425,17 +429,25 @@ public class OfferService : IOfferService
                             table.Cell().Element(DataCell).Text(item.Description);
                             table.Cell().Element(DataCell).AlignCenter().Text(item.Quantity.ToString());
                             table.Cell().Element(DataCell).AlignRight().Text(item.UnitPrice.ToString("C"));
-                            table.Cell().Element(DataCell).AlignRight().Text(item.Discount.ToString("C"));
+                            table.Cell().Element(DataCell).AlignRight().Text($"{item.Discount:0.##}%");
                             table.Cell().Element(DataCell).AlignRight().Text(item.VatRate.ToString());
                             table.Cell().Element(DataCell).AlignRight().Text(item.TotalPrice.ToString("C"));
                         }
 
                         table.Footer(footer =>
                         {
-                            var subTotal = offer.Items.Sum(i => i.TotalPrice);
+                            var totalBeforeDiscount = offer.Items.Sum(i => i.Quantity * i.UnitPrice);
+                            var discountTotal = offer.Items.Sum(i => i.Quantity * i.UnitPrice * i.Discount / 100m);
+                            var subTotal = totalBeforeDiscount - discountTotal;
                             var vatTotal = offer.Items.Sum(i => i.TotalPrice * i.VatRate / 100m);
 
                             footer.Cell().ColumnSpan(5).Element(DataCell).AlignRight().Text("Ara Toplam").Bold();
+                            footer.Cell().Element(DataCell).AlignRight().Text(totalBeforeDiscount.ToString("C")).Bold();
+
+                            footer.Cell().ColumnSpan(5).Element(DataCell).AlignRight().Text("İndirim").Bold();
+                            footer.Cell().Element(DataCell).AlignRight().Text((discountTotal).ToString("C")).Bold();
+
+                            footer.Cell().ColumnSpan(5).Element(DataCell).AlignRight().Text("Ara Toplam (İndirimli)").Bold();
                             footer.Cell().Element(DataCell).AlignRight().Text(subTotal.ToString("C")).Bold();
 
                             footer.Cell().ColumnSpan(5).Element(DataCell).AlignRight().Text("KDV Toplam").Bold();
