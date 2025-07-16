@@ -36,7 +36,7 @@ export default function Header() {
           {company && (
             <a
               href="/dashboard/billing"
-              className="hidden sm:block text-sm text-gray-600 dark:text-gray-300 mr-2 hover:underline cursor-pointer"
+              className=" sm:block text-sm text-gray-600 dark:text-gray-300 mr-2 hover:underline cursor-pointer"
             >
               {company.subscriptionPlan === 'Free'
                 ? `Ücretsiz Plan - ${company.offersUsed}/3`
