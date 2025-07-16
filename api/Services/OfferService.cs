@@ -74,11 +74,15 @@ public class OfferService : IOfferService
                 Description = item.Description,
                 Quantity = item.Quantity,
                 UnitPrice = item.UnitPrice,
-                TotalPrice = item.Quantity * item.UnitPrice
+                Discount = item.Discount,
+                VatRate = item.VatRate,
+                TotalPrice = item.Quantity * item.UnitPrice - item.Discount
             }).ToList()
         };
 
-        offer.TotalAmount = offer.Items.Sum(i => i.TotalPrice);
+        var subTotal = offer.Items.Sum(i => i.TotalPrice);
+        var vatTotal = offer.Items.Sum(i => i.TotalPrice * i.VatRate / 100m);
+        offer.TotalAmount = subTotal + vatTotal;
 
         _context.Offers.Add(offer);
 
@@ -163,11 +167,15 @@ public class OfferService : IOfferService
             Description = item.Description,
             Quantity = item.Quantity,
             UnitPrice = item.UnitPrice,
-            TotalPrice = item.Quantity * item.UnitPrice,
+            Discount = item.Discount,
+            VatRate = item.VatRate,
+            TotalPrice = item.Quantity * item.UnitPrice - item.Discount,
             OfferId = offer.Id
         }).ToList();
 
-        offer.TotalAmount = offer.Items.Sum(i => i.TotalPrice);
+        var subTotal = offer.Items.Sum(i => i.TotalPrice);
+        var vatTotal = offer.Items.Sum(i => i.TotalPrice * i.VatRate / 100m);
+        offer.TotalAmount = subTotal + vatTotal;
 
         await _context.SaveChangesAsync();
         return await GetOfferByIdAsync(offer.Id, offer.CompanyId);
@@ -330,6 +338,8 @@ public class OfferService : IOfferService
                 Description = item.Description,
                 Quantity = item.Quantity,
                 UnitPrice = item.UnitPrice,
+                Discount = item.Discount,
+                VatRate = item.VatRate,
                 TotalPrice = item.TotalPrice
             }).ToList()
         };
@@ -396,6 +406,8 @@ public class OfferService : IOfferService
                             columns.RelativeColumn(1);
                             columns.RelativeColumn(2);
                             columns.RelativeColumn(2);
+                            columns.RelativeColumn(2);
+                            columns.RelativeColumn(2);
                         });
 
                         table.Header(header =>
@@ -403,6 +415,8 @@ public class OfferService : IOfferService
                             header.Cell().Element(HeaderCell).Text("Ürün Açıklaması");
                             header.Cell().Element(HeaderCell).AlignCenter().Text("Adet");
                             header.Cell().Element(HeaderCell).AlignRight().Text("Birim Fiyat");
+                            header.Cell().Element(HeaderCell).AlignRight().Text("İndirim");
+                            header.Cell().Element(HeaderCell).AlignRight().Text("KDV %");
                             header.Cell().Element(HeaderCell).AlignRight().Text("Tutar");
                         });
 
@@ -411,18 +425,23 @@ public class OfferService : IOfferService
                             table.Cell().Element(DataCell).Text(item.Description);
                             table.Cell().Element(DataCell).AlignCenter().Text(item.Quantity.ToString());
                             table.Cell().Element(DataCell).AlignRight().Text(item.UnitPrice.ToString("C"));
+                            table.Cell().Element(DataCell).AlignRight().Text(item.Discount.ToString("C"));
+                            table.Cell().Element(DataCell).AlignRight().Text(item.VatRate.ToString());
                             table.Cell().Element(DataCell).AlignRight().Text(item.TotalPrice.ToString("C"));
                         }
 
                         table.Footer(footer =>
                         {
-                            footer.Cell().ColumnSpan(3).Element(DataCell).AlignRight().Text("Ara Toplam").Bold();
-                            footer.Cell().Element(DataCell).AlignRight().Text((offer.TotalAmount * 0.82m).ToString("C")).Bold();
+                            var subTotal = offer.Items.Sum(i => i.TotalPrice);
+                            var vatTotal = offer.Items.Sum(i => i.TotalPrice * i.VatRate / 100m);
 
-                            footer.Cell().ColumnSpan(3).Element(DataCell).AlignRight().Text("KDV %18").Bold();
-                            footer.Cell().Element(DataCell).AlignRight().Text((offer.TotalAmount * 0.18m).ToString("C")).Bold();
+                            footer.Cell().ColumnSpan(5).Element(DataCell).AlignRight().Text("Ara Toplam").Bold();
+                            footer.Cell().Element(DataCell).AlignRight().Text(subTotal.ToString("C")).Bold();
 
-                            footer.Cell().ColumnSpan(3).Element(DataCell).AlignRight().Text("Genel Toplam").Bold().FontSize(11);
+                            footer.Cell().ColumnSpan(5).Element(DataCell).AlignRight().Text("KDV Toplam").Bold();
+                            footer.Cell().Element(DataCell).AlignRight().Text(vatTotal.ToString("C")).Bold();
+
+                            footer.Cell().ColumnSpan(5).Element(DataCell).AlignRight().Text("Genel Toplam").Bold().FontSize(11);
                             footer.Cell().Element(DataCell).AlignRight().Text(offer.TotalAmount.ToString("C")).Bold().FontSize(11);
                         });
 

@@ -76,6 +76,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Description).IsRequired().HasMaxLength(500);
             entity.Property(e => e.UnitPrice).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.Discount).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.VatRate).HasColumnType("decimal(5,2)");
             entity.Property(e => e.TotalPrice).HasColumnType("decimal(18,2)");
 
             entity.HasOne(oi => oi.Offer)
