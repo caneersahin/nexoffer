@@ -17,6 +17,7 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 import OfferActionsDropdown from '@/components/OfferActionsDropdown';
 import toast from 'react-hot-toast';
 
+
 export default function OffersPage() {
   const router = useRouter();
   const { offers, fetchOffers, deleteOffer, sendOffer, downloadOfferPdf, acceptOffer, rejectOffer, loading } = useOfferStore();
@@ -208,7 +209,7 @@ export default function OffersPage() {
               )}
             </div>
           ) : (
-            <div className="overflow-x-auto overflow-visible">
+            <div className="overflow-x-auto max-w-full lg:overflow-visible">
               <table className="table">
                 <thead className="table-header">
                   <tr>
@@ -260,7 +261,7 @@ export default function OffersPage() {
                           {format(new Date(offer.createdAt), 'dd MMM yyyy', { locale: tr })}
                         </div>
                       </td>
-                      <td className="table-cell">
+                      <td className="table-cell relative z-10">
                         <OfferActionsDropdown
                           onView={() => router.push(`/dashboard/offers/${offer.id}`)}
                           onEdit={() => router.push(`/dashboard/offers/${offer.id}/edit`)}

@@ -65,7 +65,7 @@
   }
 
   .card-body {
-    @apply p-6 pt-0;
+    @apply p-6 ;
   }
 
   .card-footer {

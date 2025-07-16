@@ -12,8 +12,8 @@ using OfferManagement.API.Data;
 namespace OfferManagement.API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250715165837_AddPublicTokenToOffers")]
-    partial class AddPublicTokenToOffers
+    [Migration("20250716064602_InitialCreate2")]
+    partial class InitialCreate2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
