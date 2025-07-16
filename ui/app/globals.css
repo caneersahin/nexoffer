@@ -120,3 +120,10 @@
     @apply p-4 align-middle [&:has([role=checkbox])]:pr-0;
   }
 }
+
+@layer utilities {
+  .dark .bg-white { @apply bg-gray-800; }
+  .dark .text-gray-900 { @apply text-gray-100; }
+  .dark .text-gray-600 { @apply text-gray-300; }
+  .dark .text-gray-500 { @apply text-gray-400; }
+}
